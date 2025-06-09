@@ -26,9 +26,9 @@ public final class OrderDataAccess {
      */
     public void saveOrder(final CreateOrderSlice.OrderData orderData) {
         logger.info("Saving order: {} for customer: {}", 
-            orderData.getOrderId(), orderData.getCustomerId());
+            orderData.orderId(), orderData.customerId());
         
-        orders.put(orderData.getOrderId(), orderData);
+        orders.put(orderData.orderId(), orderData);
         
         logger.debug("Order saved successfully. Total orders in storage: {}", orders.size());
     }
@@ -41,7 +41,7 @@ public final class OrderDataAccess {
         
         if (order != null) {
             logger.debug("Retrieved order: {} for customer: {}", 
-                order.getOrderId(), order.getCustomerId());
+                order.orderId(), order.customerId());
         } else {
             logger.warn("Order not found: {}", orderId);
         }

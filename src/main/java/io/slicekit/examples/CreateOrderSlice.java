@@ -66,7 +66,7 @@ public final class CreateOrderSlice {
         return new CreateOrderResult(
             orderId,
             "Order created successfully",
-            orderData.getCreatedAt(),
+            orderData.createdAt(),
             "Confirmation email sent"
         );
     }
@@ -124,78 +124,27 @@ public final class CreateOrderSlice {
     }
     
     /**
-     * Response object for create order.
+     * Response record for create order.
      */
-    public static final class CreateOrderResult {
-        private final String orderId;
-        private final String message;
-        private final LocalDateTime createdAt;
-        private final String emailStatus;
-        
-        public CreateOrderResult(String orderId, String message, LocalDateTime createdAt, String emailStatus) {
-            this.orderId = orderId;
-            this.message = message;
-            this.createdAt = createdAt;
-            this.emailStatus = emailStatus;
-        }
-        
-        public String getOrderId() {
-            return orderId;
-        }
-        
-        public String getMessage() {
-            return message;
-        }
-        
-        public LocalDateTime getCreatedAt() {
-            return createdAt;
-        }
-        
-        public String getEmailStatus() {
-            return emailStatus;
-        }
-        
+    public record CreateOrderResult(
+        String orderId,
+        String message,
+        LocalDateTime createdAt,
+        String emailStatus
+    ) {
         public String getSliceInfo() {
             return "Processed by CreateOrderSlice with dependency injection";
         }
     }
     
     /**
-     * Internal order data structure.
+     * Internal order data record.
      */
-    public static final class OrderData {
-        private final String orderId;
-        private final String customerId;
-        private final String[] items;
-        private final BigDecimal totalAmount;
-        private final LocalDateTime createdAt;
-        
-        public OrderData(String orderId, String customerId, String[] items, BigDecimal totalAmount, LocalDateTime createdAt) {
-            this.orderId = orderId;
-            this.customerId = customerId;
-            this.items = items;
-            this.totalAmount = totalAmount;
-            this.createdAt = createdAt;
-        }
-        
-        public String getOrderId() {
-            return orderId;
-        }
-        
-        public String getCustomerId() {
-            return customerId;
-        }
-        
-        public String[] getItems() {
-            return items;
-        }
-        
-        public BigDecimal getTotalAmount() {
-            return totalAmount;
-        }
-        
-        public LocalDateTime getCreatedAt() {
-            return createdAt;
-        }
-    }
+    public record OrderData(
+        String orderId,
+        String customerId,
+        String[] items,
+        BigDecimal totalAmount,
+        LocalDateTime createdAt
+    ) {}
 }

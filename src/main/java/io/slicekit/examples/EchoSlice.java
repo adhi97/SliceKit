@@ -93,38 +93,14 @@ public final class EchoSlice {
     }
     
     /**
-     * Response object for echo slice.
+     * Response record for echo slice.
      */
-    public static final class EchoResponse {
-        private final EchoRequest originalRequest;
-        private final String processingMessage;
-        private final LocalDateTime processedAt;
-        private final int estimatedSize;
-        
-        public EchoResponse(EchoRequest originalRequest, String processingMessage, 
-                           LocalDateTime processedAt, int estimatedSize) {
-            this.originalRequest = originalRequest;
-            this.processingMessage = processingMessage;
-            this.processedAt = processedAt;
-            this.estimatedSize = estimatedSize;
-        }
-        
-        public EchoRequest getOriginalRequest() {
-            return originalRequest;
-        }
-        
-        public String getProcessingMessage() {
-            return processingMessage;
-        }
-        
-        public LocalDateTime getProcessedAt() {
-            return processedAt;
-        }
-        
-        public int getEstimatedSize() {
-            return estimatedSize;
-        }
-        
+    public record EchoResponse(
+        EchoRequest originalRequest,
+        String processingMessage,
+        LocalDateTime processedAt,
+        int estimatedSize
+    ) {
         public String getSliceInfo() {
             return "Processed by SliceKit Echo Slice v1.0";
         }
