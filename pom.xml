@@ -25,6 +25,10 @@
         <slf4j.version>2.0.9</slf4j.version>
         <logback.version>1.4.14</logback.version>
         
+        <!-- Validation -->
+        <hibernate.validator.version>8.0.1.Final</hibernate.validator.version>
+        <jakarta.validation.version>3.0.2</jakarta.validation.version>
+        
         <!-- Test Dependencies -->
         <junit.version>5.10.1</junit.version>
         <assertj.version>3.24.2</assertj.version>
@@ -68,6 +72,23 @@
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
             <version>1</version>
+        </dependency>
+        
+        <!-- Validation -->
+        <dependency>
+            <groupId>org.hibernate.validator</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>${hibernate.validator.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>${jakarta.validation.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>jakarta.el</artifactId>
+            <version>4.0.2</version>
         </dependency>
         
         <!-- Logging -->

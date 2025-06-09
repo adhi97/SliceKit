@@ -97,6 +97,23 @@ SliceKit enforces VSA principles through:
         <artifactId>javax.inject</artifactId>
         <version>1</version>
     </dependency>
+    
+    <!-- Validation Framework -->
+    <dependency>
+        <groupId>org.hibernate.validator</groupId>
+        <artifactId>hibernate-validator</artifactId>
+        <version>8.0.1.Final</version>
+    </dependency>
+    <dependency>
+        <groupId>jakarta.validation</groupId>
+        <artifactId>jakarta.validation-api</artifactId>
+        <version>3.0.2</version>
+    </dependency>
+    <dependency>
+        <groupId>org.glassfish</groupId>
+        <artifactId>jakarta.el</artifactId>
+        <version>4.0.2</version>
+    </dependency>
 </dependencies>
 ```
 
@@ -121,7 +138,7 @@ public class CreateUserSlice {
     }
     
     @SliceHandler
-    public CreateUserResult handle(CreateUserRequest request) {
+    public CreateUserResult handle(@Valid CreateUserRequest request) {
         // Complete user creation logic here
         String userId = UUID.randomUUID().toString();
         
@@ -129,6 +146,19 @@ public class CreateUserSlice {
         emailService.sendWelcomeEmail(user.getEmail());
         
         return new CreateUserResult(userId, "User created successfully");
+    }
+    
+    // Request with validation annotations
+    public static class CreateUserRequest {
+        @NotBlank(message = "Email is required")
+        @Email(message = "Must be a valid email address")
+        private String email;
+        
+        @NotBlank(message = "Name is required")
+        @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
+        private String name;
+        
+        // getters and setters...
     }
 }
 ```
@@ -165,6 +195,57 @@ public class MyApp {
 }
 ```
 
+## Request Validation
+
+SliceKit includes **built-in Bean Validation support** for automatic request validation:
+
+### Validation Annotations
+
+```java
+@SliceHandler
+public CreateOrderResult handle(@Valid CreateOrderRequest request) {
+    // Validation happens automatically before this method is called
+    // Invalid requests return HTTP 400 with detailed error messages
+    return processOrder(request);
+}
+
+public static class CreateOrderRequest {
+    @NotBlank(message = "Customer ID is required")
+    @Email(message = "Must be a valid email address")
+    private String customerId;
+    
+    @NotEmpty(message = "Order must contain at least one item")
+    @Size(min = 1, max = 10, message = "Order can contain between 1 and 10 items")
+    private String[] items;
+    
+    @DecimalMin(value = "0.01", message = "Order total must be at least $0.01")
+    private BigDecimal totalAmount;
+}
+```
+
+### Automatic Error Responses
+
+Invalid requests automatically return **HTTP 400** with detailed validation errors:
+
+```json
+{
+  "error": "Validation Failed",
+  "message": "customerId: Must be a valid email address; items: Order must contain at least one item; totalAmount: Order total must be at least $0.01",
+  "violationCount": 3
+}
+```
+
+### Supported Validation Annotations
+
+- `@NotNull` - Field cannot be null
+- `@NotBlank` - String cannot be null, empty, or whitespace-only
+- `@NotEmpty` - Collection/array cannot be null or empty
+- `@Email` - String must be a valid email format
+- `@Size(min, max)` - String/collection size constraints
+- `@DecimalMin/@DecimalMax` - Numeric minimum/maximum values
+- `@Pattern` - String must match regex pattern
+- And many more from Jakarta Bean Validation!
+
 ## Core Concepts
 
 ### Slices
@@ -172,6 +253,7 @@ public class MyApp {
 A **slice** is a complete vertical feature containing:
 - HTTP endpoint definition (`@Slice`)
 - Request handler (`@SliceHandler`) 
+- Request validation (`@Valid` with Bean Validation)
 - Business logic and dependencies
 - Data access and external integrations
 
@@ -225,9 +307,16 @@ mvn exec:java -Dexec.mainClass="io.slicekit.examples.SliceKitExampleApp"
 # Test the endpoints
 curl http://localhost:8080/hello
 curl http://localhost:8080/health
+
+# Test successful order creation
 curl -X POST http://localhost:8080/api/orders \
   -H "Content-Type: application/json" \
-  -d '{"customerId":"test","items":["item1"],"totalAmount":29.99}'
+  -d '{"customerId":"test@example.com","items":["item1"],"totalAmount":29.99}'
+
+# Test validation errors
+curl -X POST http://localhost:8080/api/orders \
+  -H "Content-Type: application/json" \
+  -d '{"customerId":"invalid-email","items":[],"totalAmount":-5.00}'
 ```
 
 ## Architecture Benefits
@@ -294,6 +383,7 @@ SliceKit enforces VSA principles through:
 - **Undertow** - Embedded HTTP server
 - **Jackson** - JSON serialization/deserialization  
 - **Google Guice** - Dependency injection
+- **Hibernate Validator** - Bean Validation (JSR-380) implementation
 - **Reflections** - Classpath scanning
 - **SLF4J + Logback** - Logging
 

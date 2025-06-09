@@ -3,7 +3,14 @@ package io.slicekit.examples;
 import io.slicekit.annotations.HttpMethod;
 import io.slicekit.annotations.Slice;
 import io.slicekit.annotations.SliceHandler;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 import javax.inject.Inject;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -34,7 +41,7 @@ public final class CreateOrderSlice {
     }
     
     @SliceHandler
-    public CreateOrderResult handle(CreateOrderRequest request) {
+    public CreateOrderResult handle(@Valid CreateOrderRequest request) {
         if (request == null) {
             throw new IllegalArgumentException("Order request cannot be null");
         }
@@ -66,16 +73,26 @@ public final class CreateOrderSlice {
     
     /**
      * Request object for create order.
+     * 
+     * Demonstrates slice-specific validation rules that are co-located
+     * with the slice implementation (VSA principle).
      */
     public static final class CreateOrderRequest {
+        @NotBlank(message = "Customer ID is required for order creation")
+        @Email(message = "Customer ID must be a valid email address")
         private String customerId;
+        
+        @NotEmpty(message = "Order must contain at least one item")
+        @Size(min = 1, max = 10, message = "Order can contain between 1 and 10 items")
         private String[] items;
-        private double totalAmount;
+        
+        @DecimalMin(value = "0.01", message = "Order total must be at least $0.01")
+        private BigDecimal totalAmount;
         
         // Default constructor for Jackson
         public CreateOrderRequest() {}
         
-        public CreateOrderRequest(String customerId, String[] items, double totalAmount) {
+        public CreateOrderRequest(String customerId, String[] items, BigDecimal totalAmount) {
             this.customerId = customerId;
             this.items = items;
             this.totalAmount = totalAmount;
@@ -97,11 +114,11 @@ public final class CreateOrderSlice {
             this.items = items;
         }
         
-        public double getTotalAmount() {
+        public BigDecimal getTotalAmount() {
             return totalAmount;
         }
         
-        public void setTotalAmount(double totalAmount) {
+        public void setTotalAmount(BigDecimal totalAmount) {
             this.totalAmount = totalAmount;
         }
     }
@@ -150,10 +167,10 @@ public final class CreateOrderSlice {
         private final String orderId;
         private final String customerId;
         private final String[] items;
-        private final double totalAmount;
+        private final BigDecimal totalAmount;
         private final LocalDateTime createdAt;
         
-        public OrderData(String orderId, String customerId, String[] items, double totalAmount, LocalDateTime createdAt) {
+        public OrderData(String orderId, String customerId, String[] items, BigDecimal totalAmount, LocalDateTime createdAt) {
             this.orderId = orderId;
             this.customerId = customerId;
             this.items = items;
@@ -173,7 +190,7 @@ public final class CreateOrderSlice {
             return items;
         }
         
-        public double getTotalAmount() {
+        public BigDecimal getTotalAmount() {
             return totalAmount;
         }
         
